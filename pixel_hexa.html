@@ -1,0 +1,112 @@
+<html>
+  <head>
+    <title>Hi</title>
+    <script type="text/javascript">
+      function changeBit(ev) {
+        if(ev.target.classList.contains("checked")) {
+          ev.target.className="bit"
+        } else {
+          ev.target.className="bit checked"
+        }
+      }
+
+      function makeBit(i){
+        var node = document.createElement("div");
+        node.className = "bit";
+        node.setAttribute("data-mask", 1<<i);
+        node.onclick = changeBit;
+        return node;
+      }
+
+      function makeColumn() {
+        var node = document.createElement("div");
+        node.className = "column";
+        for(bit=7; bit>=0; bit--) {
+          node.appendChild(makeBit(bit));
+        }
+        return node;
+      }
+
+      function makePage() {
+        var node = document.createElement("div");
+        node.className="page";
+        for(column = 0; column < 15; column++) {
+          node.appendChild(makeColumn());
+        }
+        return node;
+      }
+
+      function render() {
+        var main = document.getElementById("layout");
+        for(page=0; page<3; page++) {
+          main.appendChild(makePage());
+        }
+      }
+
+      function calc2(){
+        var output = document.getElementById("result");
+        output.textContent = "";
+        var pages = document.getElementsByClassName("page");
+        for (page=0; page<pages.length; page++) {
+          columns = pages[page].getElementsByClassName("column");
+          output.textContent += " .db " + columns.length.toString(16) + " ";
+          for (column = 0; column < columns.length; column++) {
+            bits = document.getElementsByClassName("checked");
+            var data = 0;
+            for (bit=0; bit<bits.length; bit++){
+              data |= bits[bit].getAttribute("data-mask");
+            }
+            output.textContent += "0x" + data.toString(16) + ", "
+          }
+          output.textContent += "    |    "
+        }
+      }
+
+      function calc(){
+				document.getElementById("result").textContent = "";
+				pages = document.getElementsByClassName("page");
+				for(page = 0; page < pages.length; page++){
+					columns = pages[page].getElementsByClassName("column");
+					document.getElementById("result").textContent += ".db 0x0" + columns.length.toString(16).toUpperCase() + " ";
+					for(column = 0; column < columns.length; column++){
+						bits = columns[column].getElementsByClassName("checked");
+						var data = 0;
+						for(bit = 0; bit < bits.length; bit++){
+							data |= bits[bit].getAttribute("data-mask");
+						}
+            if (data.toString(16).length !=2){
+              document.getElementById("result").textContent += "0x0" + data.toString(16).toUpperCase() + ", ";
+            } else {
+              document.getElementById("result").textContent += "0x" + data.toString(16).toUpperCase() + ", ";
+            }
+					}
+					document.getElementById("result").textContent += "          ";
+				}
+			}
+    </script>
+    <style type="text/css">
+      .bit {
+        width: 1em;
+        height: 1em;
+        border: 1px solid black;
+        background-color: white;
+
+      }
+
+      .checked {
+        background-color: black;
+      }
+
+      .column {
+        display: inline-block;
+        width:1em;
+      }
+    </style>
+  </head>
+  <body onload="render();">
+    <div id="layout">
+    </div>
+    <a href="#" onclick="calc()">generate Hexa</a>
+    <div id="result"></div>
+  </body>
+</html>
